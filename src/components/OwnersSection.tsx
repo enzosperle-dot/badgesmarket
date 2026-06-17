@@ -78,7 +78,7 @@ export default async function OwnersSection() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-lg font-bold text-white">{o.name}</h3>
                     <span className="rounded-full bg-dark-700 px-2 py-0.5 text-xs text-gray-400">
-                      USER: {o.user}
+                      UserName: {o.user}
                     </span>
                   </div>
                   <p className="mt-1 text-sm font-medium text-brand-blurple">
