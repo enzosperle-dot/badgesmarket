@@ -52,21 +52,28 @@ export default function ProductCard({ item }: { item: CatalogItem }) {
           {item.description || "Sem descrição."}
         </p>
 
-        {/* Vendedor com avatar */}
+        {/* Vendedor: foto + nome + @user (vindos do banco) */}
         <div className="flex items-center gap-2">
           {item.seller_avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={item.seller_avatar}
               alt={sellerName}
-              className="h-6 w-6 rounded-full object-cover"
+              className="h-7 w-7 rounded-full object-cover ring-1 ring-dark-500"
             />
           ) : (
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-gradient text-[11px] font-bold text-white">
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-gradient text-[11px] font-bold text-white">
               {initial}
             </span>
           )}
-          <span className="text-xs text-gray-500">{sellerName}</span>
+          <div className="min-w-0 leading-tight">
+            <p className="truncate text-xs font-medium text-gray-300">
+              {sellerName}
+            </p>
+            <p className="truncate text-[11px] text-gray-500">
+              @{item.seller_username}
+            </p>
+          </div>
         </div>
 
         <div className="mt-1 flex items-center justify-between border-t border-dark-600 pt-3">

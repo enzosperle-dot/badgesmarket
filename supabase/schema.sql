@@ -206,6 +206,14 @@ create or replace view public.catalog as
 
 grant select on public.catalog to anon, authenticated;
 
+-- View pública de perfis (sem email) — usada para mostrar foto/username do
+-- vendedor nos anúncios e a foto dos owners na home.
+create or replace view public.public_profiles as
+  select id, username, display_name, avatar_url, bio, role
+  from public.profiles;
+
+grant select on public.public_profiles to anon, authenticated;
+
 -- =====================================================================
 -- 11. ROW LEVEL SECURITY (RLS)
 -- =====================================================================
