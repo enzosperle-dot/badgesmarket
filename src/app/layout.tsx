@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export const metadata: Metadata = {
   title: "Badges Market — Compre e venda contas de Discord",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className="flex min-h-screen flex-col">
         <AuthProvider>
+          <LoadingScreen />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />

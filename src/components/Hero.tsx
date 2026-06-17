@@ -1,20 +1,6 @@
 // Seção principal (Hero) — estilo marketplace de contas.
 import Link from "next/link";
 
-// Plataformas exibidas em destaque (igual a sites de marketplace de contas).
-// EDITAR AQUI para adicionar/remover plataformas.
-const PLATFORMS = [
-  "Discord",
-  "Instagram",
-  "TikTok",
-  "Twitter / X",
-  "Roblox",
-  "Steam",
-  "Epic Games",
-  "Free Fire",
-  "Valorant",
-];
-
 export default function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-dark-600">
@@ -50,23 +36,6 @@ export default function Hero() {
           <Link href="/anuncios/novo" className="btn-outline px-8 py-3.5 text-base">
             Quero vender
           </Link>
-        </div>
-
-        {/* Fileira de plataformas */}
-        <div className="mt-14">
-          <p className="text-xs uppercase tracking-widest text-gray-600">
-            Suas contas favoritas
-          </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
-            {PLATFORMS.map((p) => (
-              <span
-                key={p}
-                className="rounded-full border border-dark-600 bg-dark-800 px-4 py-1.5 text-sm font-medium text-gray-300"
-              >
-                {p}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
     </section>

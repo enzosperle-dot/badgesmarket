@@ -30,9 +30,14 @@ export default function Navbar() {
             Catálogo
           </Link>
           {profile && (
-            <Link href="/dashboard" className="transition hover:text-white">
-              Meus anúncios
-            </Link>
+            <>
+              <Link href="/dashboard" className="transition hover:text-white">
+                Meus anúncios
+              </Link>
+              <Link href="/perfil" className="transition hover:text-white">
+                Perfil
+              </Link>
+            </>
           )}
           {canManageAll(profile?.role) && (
             <Link href="/admin" className="transition hover:text-white">

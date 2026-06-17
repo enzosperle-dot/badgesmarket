@@ -1,6 +1,8 @@
 // HOME ("/") — Server Component. Estilo marketplace de contas (tipo insignias).
 import Link from "next/link";
 import Hero from "@/components/Hero";
+import PlatformGrid from "@/components/PlatformGrid";
+import OwnersSection from "@/components/OwnersSection";
 import ProductCard from "@/components/ProductCard";
 import Faq from "@/components/Faq";
 import { createClient } from "@/lib/supabase/server";
@@ -48,6 +50,9 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
+
+      {/* GRADE DE PLATAFORMAS CLICÁVEIS */}
+      <PlatformGrid />
 
       {/* CONTAS EM DESTAQUE */}
       <section className="mx-auto max-w-6xl px-4 py-20">
@@ -131,6 +136,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* DONOS / FUNDADORES */}
+      <OwnersSection />
 
       {/* FAQ */}
       <Faq />

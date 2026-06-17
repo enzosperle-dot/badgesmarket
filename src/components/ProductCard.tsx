@@ -1,11 +1,12 @@
 // Cartão de anúncio (catálogo / home). Sem compra — apenas "Visualizar".
 import Link from "next/link";
-import type { CatalogItem } from "@/lib/types";
+import { type CatalogItem, accountTypeLabel } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 
 export default function ProductCard({ item }: { item: CatalogItem }) {
-  // Primeira letra do vendedor para o "avatar".
-  const initial = (item.seller_username || "?").charAt(0).toUpperCase();
+  // Nome e inicial do vendedor para o "avatar".
+  const sellerName = item.seller_display_name || item.seller_username;
+  const initial = (sellerName || "?").charAt(0).toUpperCase();
 
   return (
     <div className="card group flex flex-col overflow-hidden transition hover:border-brand-blurple hover:shadow-glow">
@@ -23,10 +24,21 @@ export default function ProductCard({ item }: { item: CatalogItem }) {
               sem imagem
             </div>
           )}
-          {/* Selo de destaque, estilo "badge rara" */}
-          <span className="absolute left-3 top-3 rounded-full bg-dark-900/85 px-3 py-1 text-xs font-semibold text-brand-blurple ring-1 ring-brand-blurple/40">
-            ★ Badge
-          </span>
+          {/* Selos: plataforma + tipo da conta */}
+          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+            <span className="rounded-full bg-dark-900/85 px-2.5 py-1 text-xs font-semibold text-gray-200 ring-1 ring-dark-500">
+              {item.platform}
+            </span>
+            <span
+              className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${
+                item.account_type === "og"
+                  ? "bg-amber-500/15 text-amber-300 ring-amber-500/40"
+                  : "bg-brand-blurple/15 text-brand-blurple ring-brand-blurple/40"
+              }`}
+            >
+              {item.account_type === "og" ? "⭐ OG" : "🔁 Mudável"}
+            </span>
+          </div>
         </div>
       </Link>
 
@@ -42,10 +54,19 @@ export default function ProductCard({ item }: { item: CatalogItem }) {
 
         {/* Vendedor com avatar */}
         <div className="flex items-center gap-2">
-          <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-gradient text-[11px] font-bold text-white">
-            {initial}
-          </span>
-          <span className="text-xs text-gray-500">@{item.seller_username}</span>
+          {item.seller_avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={item.seller_avatar}
+              alt={sellerName}
+              className="h-6 w-6 rounded-full object-cover"
+            />
+          ) : (
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-gradient text-[11px] font-bold text-white">
+              {initial}
+            </span>
+          )}
+          <span className="text-xs text-gray-500">{sellerName}</span>
         </div>
 
         <div className="mt-1 flex items-center justify-between border-t border-dark-600 pt-3">

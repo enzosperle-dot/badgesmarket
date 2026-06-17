@@ -14,7 +14,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { parsePrice, sanitizeText, formatPrice } from "@/lib/format";
-import type { Product } from "@/lib/types";
+import { PLATFORMS, type AccountType, type Product } from "@/lib/types";
 
 // Tipos de imagem e tamanho permitidos.
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
@@ -33,6 +33,11 @@ export default function AdForm({ product }: { product?: Product }) {
     product ? formatPrice(product.price) : ""
   );
   const [active, setActive] = useState(product?.active ?? true);
+  // Tipo da conta: "mudavel" (e-mail pode ser trocado) ou "og".
+  const [accountType, setAccountType] = useState<AccountType>(
+    product?.account_type ?? "mudavel"
+  );
+  const [platform, setPlatform] = useState<string>(product?.platform ?? "Discord");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(product?.image_url ?? null);
 
@@ -104,6 +109,8 @@ export default function AdForm({ product }: { product?: Product }) {
             price,
             active,
             image_url: imageUrl,
+            account_type: accountType,
+            platform,
           })
           .eq("id", product!.id);
         if (dbErr) throw dbErr;
@@ -115,6 +122,8 @@ export default function AdForm({ product }: { product?: Product }) {
           price,
           active,
           image_url: imageUrl,
+          account_type: accountType,
+          platform,
         });
         if (dbErr) throw dbErr;
       }
@@ -158,6 +167,57 @@ export default function AdForm({ product }: { product?: Product }) {
           placeholder="Ex: Conta Discord Nitro 2 anos"
           required
         />
+      </div>
+
+      {/* Plataforma */}
+      <div>
+        <label className="label">Plataforma</label>
+        <select
+          className="input"
+          value={platform}
+          onChange={(e) => setPlatform(e.target.value)}
+        >
+          {PLATFORMS.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tipo da conta: Mudável ou OG */}
+      <div>
+        <label className="label">Tipo da conta</label>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setAccountType("mudavel")}
+            className={`rounded-lg border px-4 py-3 text-sm font-medium transition ${
+              accountType === "mudavel"
+                ? "border-brand-blurple bg-brand-blurple/15 text-white"
+                : "border-dark-500 text-gray-300 hover:border-brand-blurple/60"
+            }`}
+          >
+            🔁 Mudável
+            <span className="mt-0.5 block text-xs font-normal text-gray-500">
+              E-mail pode ser trocado
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setAccountType("og")}
+            className={`rounded-lg border px-4 py-3 text-sm font-medium transition ${
+              accountType === "og"
+                ? "border-brand-blurple bg-brand-blurple/15 text-white"
+                : "border-dark-500 text-gray-300 hover:border-brand-blurple/60"
+            }`}
+          >
+            ⭐ OG
+            <span className="mt-0.5 block text-xs font-normal text-gray-500">
+              Conta original / antiga
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Descrição */}
