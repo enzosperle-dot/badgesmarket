@@ -14,10 +14,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-gradient font-black text-white">
-            D
+            B
           </span>
           <span className="text-lg font-bold tracking-tight">
-            Discord<span className="text-brand-purple">Market</span>
+            Badges<span className="text-brand-purple">Market</span>
           </span>
         </Link>
 

@@ -15,6 +15,8 @@ const config: Config = {
           purpleDark: "#6d28d9",
           blue: "#3b82f6",
           blueDark: "#2563eb",
+          // "Blurple" oficial do Discord — usado em detalhes.
+          blurple: "#5865f2",
         },
         // Tons de fundo escuro.
         dark: {

@@ -5,9 +5,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Discord Market — Marketplace de contas de Discord",
+  title: "Badges Market — Compre e venda contas de Discord",
   description:
-    "Anuncie e visualize contas de Discord. Crie seu anúncio com imagem, título, descrição e valor.",
+    "Marketplace de contas de Discord com badges raras. Entrega rápida e suporte dedicado. Encontre ou anuncie a sua conta.",
 };
 
 // O app depende de sessão/dados do Supabase (lidos em runtime), então
