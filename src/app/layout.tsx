@@ -4,13 +4,15 @@ import { AuthProvider } from "@/lib/auth";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Metadados do site (aparecem na aba do navegador e no compartilhamento).
-// EDITAR AQUI título e descrição do projeto.
 export const metadata: Metadata = {
-  title: "Badges Market — Marketplace de produtos digitais para Discord",
+  title: "Discord Market — Marketplace de contas de Discord",
   description:
-    "Compre templates de servidores, bots, packs de cargos, artes e serviços de configuração para Discord.",
+    "Anuncie e visualize contas de Discord. Crie seu anúncio com imagem, título, descrição e valor.",
 };
+
+// O app depende de sessão/dados do Supabase (lidos em runtime), então
+// renderizamos sob demanda em vez de gerar páginas estáticas no build.
+export const dynamic = "force-dynamic";
 
 export default function RootLayout({
   children,
@@ -20,7 +22,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="flex min-h-screen flex-col">
-        {/* AuthProvider envolve todo o app para a sessão estar disponível em qualquer página. */}
         <AuthProvider>
           <Navbar />
           <main className="flex-1">{children}</main>

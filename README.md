@@ -1,95 +1,101 @@
-# 🟣 Badges Market
+# 🎮 Discord Market
 
-Marketplace digital de produtos para **Discord** — templates de servidores, bots, packs de cargos, artes e serviços de configuração.
+Marketplace de **contas de Discord**. Qualquer usuário logado cria anúncios (imagem, título, descrição e valor). O catálogo é **apenas para visualização** — não há compra, só o botão **Visualizar**.
 
-MVP construído com **Next.js (App Router)**, **TypeScript** e **Tailwind CSS**, usando **arquivos JSON** como banco de dados local.
+Stack: **Next.js (App Router) · TypeScript · Tailwind CSS · Supabase** (Banco, Auth e Storage).
 
 ---
 
-## 🚀 Como rodar
+## 🧩 Funcionalidades
 
+- **Cadastro** com username + email + senha (username/email únicos, email válido, senha ≥ 8).
+- **Login / Logout** via Supabase Auth, com sessão por cookies e rotas privadas protegidas.
+- **Cargos**: `user`, `seller`, `admin`, `owner`. O email **fgzinfps@gmail.com** vira `owner` automaticamente.
+- **Anúncios**: qualquer usuário cria/edita/exclui os **seus**; admin/owner gerenciam **todos**.
+- **Upload de imagem** real no Supabase Storage (bucket `product-images`, PNG/JPG/WEBP, até 5MB).
+- **Painel Admin** (`/admin`): lista usuários, owner altera cargos, editar/excluir qualquer anúncio, ver pedidos.
+- **Segurança**: senha só no Supabase Auth, permissões via **RLS** no banco, validação no servidor e inputs sanitizados.
+
+---
+
+## 🚀 Passo a passo para rodar
+
+### 1. Criar o projeto no Supabase
+1. Acesse [supabase.com](https://supabase.com) → **New project**.
+2. Em **Project Settings → API**, copie a **Project URL** e a chave **anon public**.
+
+### 2. Rodar o SQL
+1. No Supabase, abra **SQL Editor**.
+2. Cole todo o conteúdo de [`supabase/schema.sql`](supabase/schema.sql) e clique em **Run**.
+   - Isso cria as tabelas (`profiles`, `products`, `orders`), as políticas RLS, os cargos, a trigger de perfil e o bucket `product-images`.
+
+### 3. Ajustar o Auth (login imediato no MVP)
+- Em **Authentication → Providers → Email**, **desative** a opção **"Confirm email"**.
+  (Assim o usuário entra logo após o cadastro, sem precisar confirmar email.)
+
+### 4. Configurar as variáveis de ambiente
 ```bash
-npm install      # instala as dependências
-npm run dev      # inicia em modo desenvolvimento
+cp .env.local.example .env.local
+```
+Preencha o `.env.local`:
+```
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anon
 ```
 
-Acesse: **http://localhost:3000**
-
-Para build de produção:
-
+### 5. Instalar e rodar
 ```bash
-npm run build
-npm start
+npm install
+npm run dev
 ```
+Abra **http://localhost:3000**.
+
+### 6. Virar owner
+Cadastre-se com o email **fgzinfps@gmail.com** — a trigger do banco já define o cargo `owner`. Depois acesse **/admin**.
 
 ---
 
-## 🔐 Contas de teste
-
-| Tipo    | Email             | Senha     |
-| ------- | ----------------- | --------- |
-| Admin   | admin@badges.com  | admin123  |
-| Usuário | user@badges.com   | user123   |
-
-> O login é **simulado** (sessão salva no `localStorage`). Não use em produção.
-
----
-
-## 📁 Estrutura do projeto
+## 📁 Estrutura
 
 ```
-data/                      # "Banco de dados" em JSON (editável)
-  ├── products.json        # Produtos (id, name, description, price, category, image, downloadUrl, active)
-  ├── users.json           # Usuários
-  └── orders.json          # Pedidos/compras
-
-public/downloads/          # Arquivos digitais que os clientes baixam
+supabase/schema.sql            # SQL completo (tabelas + RLS + storage + triggers)
+middleware.ts                  # Renova sessão e protege rotas privadas
 
 src/
-  ├── app/
-  │   ├── page.tsx                 # Home (Hero + destaques)
-  │   ├── login/                   # Login
-  │   ├── registrar/               # Criar conta
-  │   ├── catalogo/                # Catálogo + filtro por categoria
-  │   ├── produto/[id]/            # Página do produto
-  │   ├── dashboard/               # Painel do usuário (compras + downloads)
-  │   ├── admin/                   # Painel admin (CRUD de produtos + pedidos)
-  │   └── api/                     # Rotas de API (products, orders, auth)
-  ├── components/                  # Navbar, Footer, Hero, ProductCard, BuyButton
-  └── lib/
-      ├── types.ts                 # Tipos e categorias  (EDITAR categorias aqui)
-      ├── db.ts                    # Leitura/escrita dos JSON
-      ├── auth.tsx                 # Contexto de login (simulado)
-      └── format.ts                # Formatação de preço (BRL)
+  app/
+    page.tsx                   # Home (anúncios recentes)
+    catalogo/                  # Catálogo (anúncios ativos)
+    produto/[id]/              # Visualizar anúncio (sem compra)
+    login/  registrar/         # Auth
+    dashboard/                 # Meus anúncios (perfil + CRUD próprio)
+    anuncios/novo/             # Criar anúncio
+    anuncios/[id]/editar/      # Editar anúncio
+    admin/                     # Painel admin
+  components/                  # Navbar, Footer, Hero, ProductCard, AdForm, etc.
+  lib/
+    supabase/                  # Clients (browser, server, middleware)
+    auth.tsx                   # Contexto de auth (cliente)
+    types.ts                   # Tipos e helpers de permissão
+    format.ts                  # Preço (R$) e sanitização
 ```
 
 ---
 
-## ✏️ Onde editar
+## 🔐 Como a segurança funciona
 
-- **Produtos:** `data/products.json` (ou pelo painel **Admin**).
-- **Categorias:** `src/lib/types.ts` → constante `CATEGORIES`.
-- **Cores / tema:** `tailwind.config.ts` → `colors.brand` e `colors.dark`.
-- **Estilos globais e botões:** `src/app/globals.css`.
-- **Textos da Home:** `src/components/Hero.tsx` e `src/app/page.tsx`.
-
-Os arquivos contêm comentários `EDITAR AQUI` indicando os pontos de personalização.
-
----
-
-## 💳 Integração de pagamento (futuro)
-
-O fluxo de compra está isolado em **`src/components/BuyButton.tsx`** e na rota **`src/app/api/orders/route.ts`**.
-
-Hoje a compra cria um pedido com status `"pago"` automaticamente. Para integrar **Stripe** ou **Pix**:
-
-1. Na API de orders, antes de marcar como pago, crie a sessão de checkout (Stripe) ou cobrança (Pix).
-2. Redirecione o usuário para o pagamento.
-3. Marque o pedido como `"pago"` apenas após a confirmação (webhook).
+- **Senhas**: nunca tocadas pelo app — ficam no Supabase Auth (`auth.users`).
+- **RLS** (no banco) é a fonte da verdade das permissões:
+  - todos veem anúncios **ativos**;
+  - o dono edita/exclui os **seus**;
+  - admin/owner gerenciam **todos**;
+  - só o **owner** altera cargos (RPC `set_user_role` + trigger anti-escalonamento).
+- **Servidor**: o middleware bloqueia rotas privadas sem sessão; o `/admin` ainda revalida o cargo.
+- **Catálogo público** usa a view `catalog`, que expõe só o `username` do vendedor (nunca o email).
 
 ---
 
-## ⚠️ Observações do MVP
+## 💡 Observações
 
-- Sem banco externo: tudo em JSON local (as escritas funcionam em `npm run dev` / `npm start`, mas **não** em ambientes serverless somente-leitura como a Vercel — lá use um banco real).
-- Senhas em texto puro apenas para demonstração — em produção use hash (bcrypt) e autenticação real (NextAuth, Clerk, Supabase...).
+- O bucket `product-images` é público (URLs de imagem abertas) — ideal para fotos de anúncio.
+- A tabela `orders` existe para uso futuro; como não há compra, o painel mostra a lista vazia.
+- Para deploy (ex: **Vercel**), configure as mesmas variáveis `NEXT_PUBLIC_SUPABASE_*` no painel do serviço. Como agora o banco é o Supabase (não mais arquivos locais), **a publicação na Vercel funciona normalmente**.

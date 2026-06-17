@@ -1,5 +1,5 @@
 {
-  "name": "badges-market",
+  "name": "discord-market",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/ssr": "0.5.2",
+    "@supabase/supabase-js": "2.45.4",
     "next": "^14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1"

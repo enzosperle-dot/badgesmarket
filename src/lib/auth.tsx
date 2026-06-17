@@ -1,13 +1,11 @@
 "use client";
 
 // =====================================================================
-// CONTEXTO DE AUTENTICAÇÃO (SIMULADO NO MVP)
+// CONTEXTO DE AUTENTICAÇÃO (Supabase Auth)
 //
-// A sessão é guardada no localStorage do navegador. Não há cookies/JWT.
-// É suficiente para um MVP/demonstração.
-//
-// FUTURO: substituir por NextAuth.js, Clerk, Supabase Auth, etc.
-// Mantendo este hook `useAuth()`, o resto do app continua funcionando.
+// Disponibiliza o usuário logado + seu perfil (com o cargo) em qualquer
+// componente cliente, além de logout. A sessão é mantida via cookies
+// pelo @supabase/ssr (com ajuda do middleware).
 // =====================================================================
 
 import {
@@ -15,84 +13,79 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
   ReactNode,
 } from "react";
-import type { SafeUser } from "./types";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import type { Profile } from "@/lib/types";
 
 interface AuthContextType {
-  user: SafeUser | null;
+  profile: Profile | null; // perfil (username, cargo...) ou null se deslogado
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  register: (
-    name: string,
-    email: string,
-    password: string
-  ) => Promise<{ ok: boolean; error?: string }>;
-  logout: () => void;
+  signOut: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
-
-const STORAGE_KEY = "badges_user"; // chave usada no localStorage
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<SafeUser | null>(null);
+  const supabase = createClient();
+  const router = useRouter();
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Ao montar, recupera a sessão salva no navegador.
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUser(JSON.parse(stored));
-    } catch {
-      // ignora erros de parse
+  // Busca o perfil do usuário logado na tabela profiles.
+  const loadProfile = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setProfile(null);
+      setLoading(false);
+      return;
     }
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    setProfile((data as Profile) ?? null);
     setLoading(false);
-  }, []);
+  }, [supabase]);
 
-  // Salva (ou limpa) o usuário no localStorage.
-  function persist(u: SafeUser | null) {
-    setUser(u);
-    if (u) localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-    else localStorage.removeItem(STORAGE_KEY);
-  }
+  useEffect(() => {
+    loadProfile();
 
-  async function login(email: string, password: string) {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    // Recarrega o perfil quando o estado de login muda (login/logout).
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      loadProfile();
     });
-    const data = await res.json();
-    if (!res.ok) return { ok: false, error: data.error ?? "Erro ao entrar" };
-    persist(data.user);
-    return { ok: true };
-  }
 
-  async function register(name: string, email: string, password: string) {
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) return { ok: false, error: data.error ?? "Erro ao criar conta" };
-    persist(data.user);
-    return { ok: true };
-  }
+    return () => subscription.unsubscribe();
+  }, [loadProfile, supabase]);
 
-  function logout() {
-    persist(null);
+  async function signOut() {
+    await supabase.auth.signOut();
+    setProfile(null);
+    router.push("/");
+    router.refresh();
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ profile, loading, signOut, refresh: loadProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Hook para acessar a autenticação em qualquer componente cliente.
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth deve ser usado dentro de <AuthProvider>");

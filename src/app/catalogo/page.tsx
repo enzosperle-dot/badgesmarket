@@ -1,72 +1,42 @@
-"use client";
-
-// PÁGINA CATÁLOGO (rota "/catalogo")
-// Carrega os produtos via API e permite filtrar por categoria.
-import { useEffect, useMemo, useState } from "react";
+// CATÁLOGO ("/catalogo") — lista todos os anúncios ativos (view catalog).
+import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
-import { CATEGORIES, type Product } from "@/lib/types";
+import { createClient } from "@/lib/supabase/server";
+import type { CatalogItem } from "@/lib/types";
 
-export default function CatalogPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  // "Todos" = sem filtro de categoria.
-  const [category, setCategory] = useState<string>("Todos");
+export const dynamic = "force-dynamic";
 
-  // Busca os produtos ao abrir a página.
-  useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((data: Product[]) => setProducts(data))
-      .finally(() => setLoading(false));
-  }, []);
+export default async function CatalogPage() {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("catalog")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  // Aplica os filtros: somente ativos + categoria escolhida.
-  const filtered = useMemo(() => {
-    return products
-      .filter((p) => p.active)
-      .filter((p) => category === "Todos" || p.category === category);
-  }, [products, category]);
-
-  // Lista de botões de filtro: "Todos" + categorias.
-  const filterOptions = ["Todos", ...CATEGORIES];
+  const items = (data as CatalogItem[]) ?? [];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Catálogo</h1>
-        <p className="mt-2 text-gray-400">
-          Escolha entre templates, bots, cargos, artes e serviços.
-        </p>
+      <header className="mb-8 flex items-end justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Catálogo</h1>
+          <p className="mt-2 text-gray-400">
+            {items.length} anúncio(s) disponível(is) para visualizar.
+          </p>
+        </div>
+        <Link href="/anuncios/novo" className="btn-primary hidden sm:inline-flex">
+          Criar anúncio
+        </Link>
       </header>
 
-      {/* FILTRO POR CATEGORIA */}
-      <div className="mb-8 flex flex-wrap gap-2">
-        {filterOptions.map((opt) => (
-          <button
-            key={opt}
-            onClick={() => setCategory(opt)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              category === opt
-                ? "bg-brand-gradient text-white shadow-glow"
-                : "border border-dark-600 bg-dark-800 text-gray-300 hover:border-brand-purple"
-            }`}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-
-      {/* LISTA DE PRODUTOS */}
-      {loading ? (
-        <p className="py-20 text-center text-gray-400">Carregando produtos...</p>
-      ) : filtered.length === 0 ? (
-        <p className="py-20 text-center text-gray-400">
-          Nenhum produto nesta categoria.
-        </p>
+      {items.length === 0 ? (
+        <div className="card p-10 text-center text-gray-400">
+          Nenhum anúncio ativo no momento.
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {items.map((item) => (
+            <ProductCard key={item.id} item={item} />
           ))}
         </div>
       )}

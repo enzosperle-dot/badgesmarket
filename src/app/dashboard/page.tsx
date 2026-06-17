@@ -1,114 +1,98 @@
-"use client";
-
-// DASHBOARD DO USUÁRIO (rota "/dashboard")
-// Mostra dados da conta, compras realizadas e links de download.
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+// DASHBOARD ("/dashboard") — perfil + anúncios do próprio usuário.
+// Server Component: a sessão é validada no servidor (e no middleware).
 import Link from "next/link";
-import { useAuth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/format";
-import type { Order, Product } from "@/lib/types";
+import DeleteAdButton from "@/components/DeleteAdButton";
+import type { Product, Profile } from "@/lib/types";
 
-export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+export const dynamic = "force-dynamic";
 
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default async function DashboardPage() {
+  const supabase = createClient();
 
-  // Protege a rota: se não estiver logado, manda para o login.
-  useEffect(() => {
-    if (!authLoading && !user) router.push("/login");
-  }, [authLoading, user, router]);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  // Carrega os pedidos do usuário e a lista de produtos (para pegar downloadUrl).
-  useEffect(() => {
-    if (!user) return;
-    Promise.all([
-      fetch(`/api/orders?userId=${user.id}`).then((r) => r.json()),
-      fetch("/api/products").then((r) => r.json()),
-    ])
-      .then(([o, p]) => {
-        setOrders(o);
-        setProducts(p);
-      })
-      .finally(() => setLoading(false));
-  }, [user]);
+  // Perfil + anúncios do usuário.
+  const [{ data: profileData }, { data: productsData }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase
+      .from("products")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
-  if (authLoading || !user) {
-    return <p className="py-20 text-center text-gray-400">Carregando...</p>;
-  }
-
-  // Helper: encontra o produto de um pedido para pegar o link de download.
-  const findProduct = (id: string) => products.find((p) => p.id === id);
+  const profile = profileData as Profile | null;
+  const products = (productsData as Product[]) ?? [];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-white">Minha conta</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-white">Meus anúncios</h1>
+        <Link href="/anuncios/novo" className="btn-primary">
+          + Novo anúncio
+        </Link>
+      </div>
 
-      {/* DADOS DA CONTA */}
+      {/* Dados da conta */}
       <section className="mt-6 card p-6">
         <h2 className="mb-4 text-lg font-semibold text-white">Dados da conta</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <Info label="Nome" value={user.name} />
-          <Info label="Email" value={user.email} />
-          <Info label="Tipo de conta" value={user.role === "admin" ? "Administrador" : "Cliente"} />
+          <Info label="Username" value={"@" + (profile?.username ?? "")} />
+          <Info label="Email" value={profile?.email ?? user.email ?? ""} />
+          <Info label="Cargo" value={profile?.role ?? "user"} />
         </div>
       </section>
 
-      {/* COMPRAS E DOWNLOADS */}
+      {/* Lista de anúncios */}
       <section className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-white">
-          Compras realizadas
-        </h2>
-
-        {loading ? (
-          <p className="text-gray-400">Carregando compras...</p>
-        ) : orders.length === 0 ? (
-          <div className="card p-8 text-center">
-            <p className="text-gray-400">Você ainda não comprou nada.</p>
-            <Link href="/catalogo" className="btn-primary mt-4">
-              Ver catálogo
+        {products.length === 0 ? (
+          <div className="card p-10 text-center">
+            <p className="text-gray-400">Você ainda não criou nenhum anúncio.</p>
+            <Link href="/anuncios/novo" className="btn-primary mt-4">
+              Criar meu primeiro anúncio
             </Link>
           </div>
         ) : (
           <div className="space-y-3">
-            {orders.map((order) => {
-              const product = findProduct(order.productId);
-              return (
-                <div
-                  key={order.id}
-                  className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div>
-                    <p className="font-semibold text-white">
-                      {order.productName}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      {formatPrice(order.price)} •{" "}
-                      {new Date(order.createdAt).toLocaleDateString("pt-BR")} •{" "}
-                      <span className="text-green-400">{order.status}</span>
-                    </p>
-                  </div>
-
-                  {/* Botão de download (disponível porque a compra está paga) */}
-                  {product?.downloadUrl ? (
-                    <a
-                      href={product.downloadUrl}
-                      className="btn-primary px-5 py-2.5 text-sm"
-                      download
-                    >
-                      Baixar
-                    </a>
-                  ) : (
-                    <span className="text-sm text-gray-500">
-                      Download indisponível
-                    </span>
-                  )}
+            {products.map((p) => (
+              <div
+                key={p.id}
+                className="card flex flex-col gap-4 p-4 sm:flex-row sm:items-center"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.image_url ?? ""}
+                  alt={p.title}
+                  className="h-20 w-32 shrink-0 rounded-lg border border-dark-600 object-cover"
+                />
+                <div className="flex-1">
+                  <p className="font-semibold text-white">{p.title}</p>
+                  <p className="text-sm text-gray-400">
+                    {formatPrice(p.price)} •{" "}
+                    {p.active ? (
+                      <span className="text-green-400">ativo</span>
+                    ) : (
+                      <span className="text-gray-500">inativo</span>
+                    )}
+                  </p>
                 </div>
-              );
-            })}
+                <div className="flex gap-2">
+                  <Link
+                    href={`/anuncios/${p.id}/editar`}
+                    className="rounded-md border border-dark-500 px-3 py-1.5 text-xs text-gray-200 transition hover:border-brand-purple"
+                  >
+                    Editar
+                  </Link>
+                  <DeleteAdButton id={p.id} />
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>
@@ -116,7 +100,6 @@ export default function DashboardPage() {
   );
 }
 
-// Pequeno componente auxiliar para exibir um par rótulo/valor.
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-dark-600 bg-dark-700/50 p-4">

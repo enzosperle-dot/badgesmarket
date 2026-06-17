@@ -1,14 +1,16 @@
 "use client";
 
-// PÁGINA DE LOGIN (rota "/login")
+// LOGIN ("/login") — email + senha via Supabase Auth.
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const supabase = createClient();
   const router = useRouter();
+  const params = useSearchParams();
+  const redirectTo = params.get("redirect") || "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,14 +21,20 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = await login(email, password);
-    setLoading(false);
 
-    if (result.ok) {
-      router.push("/dashboard");
-    } else {
-      setError(result.error ?? "Não foi possível entrar.");
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    setLoading(false);
+    if (error) {
+      setError("Email ou senha incorretos.");
+      return;
     }
+
+    router.push(redirectTo);
+    router.refresh();
   }
 
   return (
@@ -34,7 +42,7 @@ export default function LoginPage() {
       <div className="card p-8">
         <h1 className="text-2xl font-bold text-white">Entrar</h1>
         <p className="mt-1 text-sm text-gray-400">
-          Acesse sua conta para ver suas compras.
+          Acesse sua conta para gerenciar seus anúncios.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -68,7 +76,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Mensagem de erro */}
           {error && (
             <p className="rounded-lg bg-red-500/10 px-4 py-2 text-sm text-red-400">
               {error}
@@ -86,13 +93,6 @@ export default function LoginPage() {
             Criar conta
           </Link>
         </p>
-
-        {/* Dica de credenciais de teste (REMOVER em produção) */}
-        <div className="mt-6 rounded-lg border border-dark-600 bg-dark-700/50 p-3 text-xs text-gray-500">
-          <p className="font-medium text-gray-400">Contas de teste:</p>
-          <p>admin@badges.com / admin123 (admin)</p>
-          <p>user@badges.com / user123 (usuário)</p>
-        </div>
       </div>
     </div>
   );

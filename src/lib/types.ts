@@ -1,50 +1,57 @@
 // =====================================================================
-// TIPOS GLOBAIS DO PROJETO
-// EDITAR AQUI se quiser adicionar/remover campos das entidades.
+// TIPOS GLOBAIS
 // =====================================================================
 
-// Produto digital vendido no marketplace.
+// Cargos do sistema.
+export type UserRole = "user" | "seller" | "admin" | "owner";
+
+// Lista usada nos seletores de cargo do painel admin.
+export const ROLES: UserRole[] = ["user", "seller", "admin", "owner"];
+
+// Perfil do usuário (tabela profiles). A senha NUNCA fica aqui.
+export interface Profile {
+  id: string;
+  username: string;
+  email: string;
+  role: UserRole;
+  created_at: string;
+}
+
+// Anúncio/produto (tabela products).
 export interface Product {
   id: string;
-  name: string;
-  description: string;
+  user_id: string;
+  image_url: string | null;
+  title: string;
+  description: string | null;
   price: number;
-  category: string;
-  image: string;
-  downloadUrl: string;
   active: boolean;
+  created_at: string;
 }
 
-// Usuário do site. No MVP a senha fica em texto puro — em produção use hash (bcrypt).
-export interface User {
+// Item do catálogo público (view "catalog") — inclui o nome do vendedor.
+export interface CatalogItem {
   id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: "user" | "admin";
+  user_id: string;
+  image_url: string | null;
+  title: string;
+  description: string | null;
+  price: number;
+  created_at: string;
+  seller_username: string;
 }
 
-// Versão "pública" do usuário (sem a senha) — usada no frontend/sessão.
-export type SafeUser = Omit<User, "password">;
-
-// Pedido/compra realizada.
+// Pedido (tabela orders).
 export interface Order {
   id: string;
-  userId: string;
-  userEmail: string;
-  productId: string;
-  productName: string;
-  price: number;
-  status: "pendente" | "pago";
-  createdAt: string;
+  product_id: string | null;
+  buyer_id: string | null;
+  status: string;
+  created_at: string;
 }
 
-// Categorias disponíveis no catálogo.
-// EDITAR AQUI para adicionar novas categorias de produto.
-export const CATEGORIES = [
-  "Templates",
-  "Bots",
-  "Cargos",
-  "Artes",
-  "Serviços",
-] as const;
+// Helpers de permissão (usados no frontend; o RLS garante no banco).
+export const canManageAll = (role?: UserRole) =>
+  role === "admin" || role === "owner";
+
+export const canManageRoles = (role?: UserRole) => role === "owner";

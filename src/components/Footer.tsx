@@ -1,4 +1,4 @@
-// Rodapé simples do site.
+// Rodapé simples.
 import Link from "next/link";
 
 export default function Footer() {
@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="border-t border-dark-600 bg-dark-900">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-gray-400 sm:flex-row">
         <p>
-          © {new Date().getFullYear()} Badges Market. Produtos digitais para
+          © {new Date().getFullYear()} Discord Market. Anúncios de contas de
           Discord.
         </p>
         <div className="flex gap-5">
