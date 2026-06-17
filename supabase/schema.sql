@@ -29,11 +29,15 @@ end $$;
 --    ela é gerenciada exclusivamente pelo Supabase Auth (auth.users).
 -- ---------------------------------------------------------------------
 create table if not exists public.profiles (
-  id         uuid primary key references auth.users(id) on delete cascade,
-  username   text unique not null,
-  email      text unique not null,
-  role       public.user_role not null default 'user',
-  created_at timestamptz not null default now()
+  id           uuid primary key references auth.users(id) on delete cascade,
+  username     text unique not null,
+  email        text unique not null,
+  role         public.user_role not null default 'user',
+  created_at   timestamptz not null default now(),
+  display_name text,          -- nome de exibição
+  discord_tag  text,          -- @ do Discord (contato; obrigatório p/ anunciar)
+  avatar_url   text,          -- foto de perfil (Storage)
+  bio          text           -- biografia
 );
 
 -- ---------------------------------------------------------------------
@@ -42,14 +46,16 @@ create table if not exists public.profiles (
 --    id, user_id, image_url, title, description, price, active, created_at
 -- ---------------------------------------------------------------------
 create table if not exists public.products (
-  id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references public.profiles(id) on delete cascade,
-  image_url   text,
-  title       text not null,
-  description text,
-  price       numeric(10, 2) not null default 0,
-  active      boolean not null default true,
-  created_at  timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references public.profiles(id) on delete cascade,
+  image_url    text,
+  title        text not null,
+  description  text,
+  price        numeric(10, 2) not null default 0,
+  active       boolean not null default true,
+  created_at   timestamptz not null default now(),
+  account_type text not null default 'mudavel',  -- 'mudavel' | 'og'
+  platform     text not null default 'Discord'   -- Discord, Instagram, ...
 );
 
 create index if not exists products_user_id_idx on public.products(user_id);
@@ -93,16 +99,19 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  uname text := coalesce(nullif(new.raw_user_meta_data->>'username', ''), split_part(new.email, '@', 1));
 begin
-  insert into public.profiles (id, username, email, role)
+  insert into public.profiles (id, username, email, role, display_name)
   values (
     new.id,
-    coalesce(nullif(new.raw_user_meta_data->>'username', ''), split_part(new.email, '@', 1)),
+    uname,
     new.email,
     case
       when lower(new.email) = 'fgzinfps@gmail.com' then 'owner'::public.user_role
       else 'user'::public.user_role
-    end
+    end,
+    uname
   );
   return new;
 end;
@@ -185,7 +194,12 @@ create or replace view public.catalog as
     p.description,
     p.price,
     p.created_at,
-    pr.username as seller_username
+    p.account_type,
+    p.platform,
+    pr.username     as seller_username,
+    pr.display_name as seller_display_name,
+    pr.avatar_url   as seller_avatar,
+    pr.discord_tag  as seller_discord
   from public.products p
   join public.profiles pr on pr.id = p.user_id
   where p.active = true;
