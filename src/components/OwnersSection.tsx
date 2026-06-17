@@ -8,11 +8,11 @@ import { createClient } from "@/lib/supabase/server";
 const OWNERS = [
   {
     name: "Fg",
-    user: "157",
+    user: "1",
     role: "Fundador Badges Market",
     stat: "+200 Pigs Vendidas",
     bio: "Fundador do Badges Market. Referência em contas raras e atendimento de confiança.",
-    username: "Fg", // username da conta no site (usado para puxar a foto)
+    username: "1", // username da conta no site (usado para puxar a foto)
     photo: "", // foto fixa opcional (URL ou /arquivo em public). Vazio = usa a do banco.
   },
   {
