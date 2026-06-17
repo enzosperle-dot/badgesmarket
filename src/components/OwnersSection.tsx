@@ -17,11 +17,11 @@ const OWNERS = [
   },
   {
     name: "K4ss",
-    user: "—",
+    user: "2",
     role: "Fundador Badges Market",
     stat: "+350 Pigs Vendidas",
     bio: "Farmo aura no recreio da escola",
-    username: "K4ss",
+    username: "2",
     photo: "",
   },
 ];
