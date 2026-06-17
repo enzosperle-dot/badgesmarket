@@ -11,11 +11,11 @@ const OWNERS = [
     photo: "", // URL da foto (deixe vazio para usar a inicial)
   },
   {
-    name: "Owner 2",
+    name: "K4ss",
     user: "—",
-    role: "Co-fundador Badges Market",
-    stat: "",
-    bio: "Edite este card em src/components/OwnersSection.tsx com os dados do segundo owner.",
+    role: "Fundador Badges Market",
+    stat: "+350 Pigs Vendidas",
+    bio: "Farmo aura no recreio da escola ",
     photo: "",
   },
 ];
