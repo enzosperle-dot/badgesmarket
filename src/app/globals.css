@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================
+   ESTILOS GLOBAIS
+   EDITAR AQUI para ajustes visuais que valem para o site inteiro.
+   ===================================================================== */
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-dark-900 text-gray-100 antialiased;
+}
+
+/* Barra de rolagem combinando com o tema escuro */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-dark-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-600 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand-purple;
+}
+
+/* ----- Componentes utilitários reutilizáveis ----- */
+@layer components {
+  /* Botão primário (roxo/azul em gradiente) */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-gradient px-5 py-2.5
+           font-semibold text-white shadow-glow transition hover:opacity-90 active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Botão secundário (contorno) */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-dark-500
+           px-5 py-2.5 font-semibold text-gray-200 transition hover:border-brand-purple hover:text-white;
+  }
+
+  /* Cartão padrão */
+  .card {
+    @apply rounded-2xl border border-dark-600 bg-dark-800 shadow-lg;
+  }
+
+  /* Campo de formulário */
+  .input {
+    @apply w-full rounded-lg border border-dark-500 bg-dark-700 px-4 py-2.5 text-gray-100
+           placeholder-gray-500 outline-none transition focus:border-brand-purple
+           focus:ring-2 focus:ring-brand-purple/40;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-gray-300;
+  }
+}

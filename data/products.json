@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "name": "Template de Servidor Gamer Pro",
+    "description": "Template completo para servidores de comunidade gamer. Inclui canais organizados por jogo, categorias de voz, sistema de cargos por nível, regras prontas e canais de divulgação. Basta importar e personalizar.",
+    "price": 29.9,
+    "category": "Templates",
+    "image": "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=800&q=80",
+    "downloadUrl": "/downloads/template-gamer-pro.zip",
+    "active": true
+  },
+  {
+    "id": "2",
+    "name": "Bot de Moderação Personalizado",
+    "description": "Bot configurável com auto-moderação, anti-spam, sistema de tickets, boas-vindas automáticas e logs de servidor. Entregue com painel de configuração e suporte de instalação.",
+    "price": 89.9,
+    "category": "Bots",
+    "image": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
+    "downloadUrl": "/downloads/bot-moderacao.zip",
+    "active": true
+  },
+  {
+    "id": "3",
+    "name": "Pack de Cargos Premium",
+    "description": "Mais de 40 cargos prontos com cores, ícones e hierarquia de permissões já configurada. Ideal para servidores de comunidade, loja ou e-sports.",
+    "price": 19.9,
+    "category": "Cargos",
+    "image": "https://images.unsplash.com/photo-1551033406-611cf9a28f67?w=800&q=80",
+    "downloadUrl": "/downloads/pack-cargos-premium.zip",
+    "active": true
+  },
+  {
+    "id": "4",
+    "name": "Pack de Artes para Servidor",
+    "description": "Banners, ícones, emojis personalizados e arte de boas-vindas em alta resolução. Arquivos editáveis em PNG e PSD para você adaptar à sua marca.",
+    "price": 39.9,
+    "category": "Artes",
+    "image": "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800&q=80",
+    "downloadUrl": "/downloads/pack-artes.zip",
+    "active": true
+  },
+  {
+    "id": "5",
+    "name": "Serviço de Configuração Completa",
+    "description": "Nossa equipe configura seu servidor do zero: canais, cargos, bots, permissões e segurança. Entrega em até 48h com acompanhamento por chamada.",
+    "price": 149.9,
+    "category": "Serviços",
+    "image": "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&q=80",
+    "downloadUrl": "/downloads/guia-configuracao.pdf",
+    "active": true
+  },
+  {
+    "id": "6",
+    "name": "Template de Servidor de Loja",
+    "description": "Estrutura ideal para servidores de vendas: catálogo, canais de pedidos, avaliações de clientes, suporte e divulgação. Otimizado para conversão.",
+    "price": 34.9,
+    "category": "Templates",
+    "image": "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=800&q=80",
+    "downloadUrl": "/downloads/template-loja.zip",
+    "active": true
+  }
+]

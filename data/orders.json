@@ -1,0 +1,12 @@
+[
+  {
+    "id": "order-1",
+    "userId": "user-1",
+    "userEmail": "user@badges.com",
+    "productId": "1",
+    "productName": "Template de Servidor Gamer Pro",
+    "price": 29.9,
+    "status": "pago",
+    "createdAt": "2026-06-01T14:30:00.000Z"
+  }
+]

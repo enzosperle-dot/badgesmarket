@@ -1,0 +1,7 @@
+Coloque aqui os arquivos digitais reais que os clientes vão baixar
+(ex: template-gamer-pro.zip, bot-moderacao.zip, etc).
+
+O campo "downloadUrl" de cada produto em data/products.json deve apontar
+para um arquivo dentro desta pasta, por exemplo: /downloads/meu-arquivo.zip
+
+Estes arquivos são servidos publicamente pelo Next.js a partir de /public.
