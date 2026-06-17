@@ -21,7 +21,12 @@ export default function Navbar() {
     { href: "/catalogo", label: "Catálogo" },
     ...(profile ? [{ href: "/dashboard", label: "Meus anúncios" }] : []),
     ...(profile ? [{ href: "/perfil", label: "Perfil" }] : []),
-    ...(canManageAll(profile?.role) ? [{ href: "/admin", label: "Admin" }] : []),
+    ...(canManageAll(profile?.role)
+      ? [
+          { href: "/admin", label: "Admin" },
+          { href: "/admin/logs", label: "Logs" },
+        ]
+      : []),
   ];
 
   return (

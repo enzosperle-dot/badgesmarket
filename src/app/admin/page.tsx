@@ -60,7 +60,12 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-white">Painel Admin</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-white">Painel Admin</h1>
+        <Link href="/admin/logs" className="btn-outline">
+          Ver logs
+        </Link>
+      </div>
       <p className="mt-2 text-gray-400">
         Logado como <span className="text-brand-purple">{myRole}</span>.
         {owner
